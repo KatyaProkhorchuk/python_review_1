@@ -14,7 +14,24 @@ from colorama import Fore
 import shutil as sh
 SHELL_RUN = 1
 SHELL_STOP = 0
-NOT_FORMAT = 2
+SHELL_ERROR = 2
+
+
+def run(tokens):
+    pid = os.fork()
+    st = SHELL_RUN
+    if pid == 0:
+        args = [tokens[i] for i in range(1, len(tokens))]
+        try:
+            os.execvp(tokens[1], args)
+        except OSError as error:
+            print(error)
+    elif pid > 0:
+        while True:
+            wait, status = os.waitpid(pid, 0)
+            if os.WIFEXITED(status) or os.WIFSIGNALED(status):
+                break
+    return SHELL_RUN
 
 
 def delete(name):
@@ -23,28 +40,39 @@ def delete(name):
             os.remove(name[1])
     except OSError as error:
         print(error)
+        return SHELL_ERROR
     return SHELL_RUN
+
 
 def move(name):
     dir = os.getcwd()
     try:
-        if name[1] and name[2]:
-            os.replace(name[1], name[2])
+        if len(name) == 3:
+            if name[1] and name[2]:
+                os.replace(name[1], name[2])
+        else:
+            return SHELL_ERROR
     except OSError as error:
         print(error)
+        return SHELL_ERROR
     return SHELL_RUN
 
 
 def copy(name):
     dir = os.getcwd()
     try:
-        if name[1] and name[2]:
-            if (os.path.isfile(os.path.join(dir, name[2]))):
-                sh.copyfile(name[1], name[2])
-            elif (os.path.isdir(os.path.join(dir, name[2]))):
-                sh.copy(name[1], name[2])
+        if len(name) == 3:
+            if name[1] and name[2]:
+                if (os.path.isfile(os.path.join(dir, name[2]))):
+                    sh.copyfile(name[1], name[2])
+                elif (os.path.isdir(os.path.join(dir, name[2]))):
+                    sh.copy(name[1], name[2])
+        else:
+            return SHELL_ERROR
     except OSError as error:
         print(error)
+        return SHELL_ERROR
+
     return SHELL_RUN
 
 
@@ -57,8 +85,8 @@ def def_ls():
     for filename in list:
         if (os.path.isfile(os.path.join(dir, filename)) and filename[0] != "."):
             print(Fore.WHITE + filename, end="\t")
-
     print()
+    return SHELL_RUN
 
 
 def def_cd(name):
@@ -67,6 +95,7 @@ def def_cd(name):
             os.chdir(name[1])
     except OSError as error:
         print(error)
+        return SHELL_ERROR
     return SHELL_RUN
 
 
@@ -86,6 +115,7 @@ def del_dir(name):
     except OSError as error:
         print(error)
         print("Directory '%s' can not be removed" % name[1])
+        return SHELL_ERROR
     return SHELL_RUN
 
 
@@ -99,6 +129,7 @@ def make_folder(name):
     except OSError as error:
         print(error)
         print("Directory '%s' can not be removed" % name[1])
+        return SHELL_ERROR
     return SHELL_RUN
 
 
@@ -106,23 +137,27 @@ def execute(tokens):
     pid = os.fork()
     st = SHELL_RUN
     if pid == 0:
-
-        if (tokens[0] == "mkdir"):
-            st = make_folder(tokens)
-        if (tokens[0] == "rmdir"):
-            st = del_dir(tokens)
-        if (tokens[0] == "pwd"):
-            st = def_pwd()
-        if (tokens[0] == "cd"):
-            st = def_cd(tokens)
-        if (tokens[0] == "ls"):
-            st = def_ls()
-        if (tokens[0] == "cp"):
-            st = copy(tokens)
-        if (tokens[0] == "mv"):
-            st = move(tokens)
-        if (tokens[0] == "rm"):
-            st = delete(tokens)
+        if tokens:
+            if (tokens[0] == "mkdir"):
+                st = make_folder(tokens)
+            if (tokens[0] == "rmdir"):
+                st = del_dir(tokens)
+            if (tokens[0] == "pwd"):
+                st = def_pwd()
+            if (tokens[0] == "cd"):
+                st = def_cd(tokens)
+            if (tokens[0] == "ls"):
+                st = def_ls()
+            if (tokens[0] == "cp"):
+                st = copy(tokens)
+            if (tokens[0] == "mv"):
+                st = move(tokens)
+            if (tokens[0] == "rm"):
+                st = delete(tokens)
+        ############################
+        # bonus
+            if (tokens[0] == "run"):
+                st = run(tokens)
         # os.execvp(tokens[0], tokens)
     elif pid > 0:
         while True:
