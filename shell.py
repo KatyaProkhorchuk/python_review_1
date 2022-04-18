@@ -3,32 +3,30 @@ import shlex
 import os
 from colorama import Fore
 import shutil as sh
+from multiprocessing import Process
 SHELL_RUN = 1
 SHELL_STOP = 0
 SHELL_ERROR = 2
 
 
 def run(tokens):
-    pid = os.fork()
     st = SHELL_RUN
-    if pid == 0:
-        args = [tokens[i] for i in range(1, len(tokens))]
-        try:
-            os.execvp(tokens[1], args)
-        except OSError as error:
-            print(error)
-    elif pid > 0:
-        while True:
-            wait, status = os.waitpid(pid, 0)
-            if os.WIFEXITED(status) or os.WIFSIGNALED(status):
-                break
+    args =""
+    for i in range(1, len(tokens)):
+        args += tokens[i]
+        args += ' '
+    try:
+        os.system(args)
+    except OSError as error:
+        print(error)
     return SHELL_RUN
 
 
 def delete(name):
     try:
-        if name[1]:
-            os.remove(name[1])
+        if len(name) == 2:
+            if name[1]:
+                os.remove(name[1])
     except OSError as error:
         print(error)
         return SHELL_ERROR
@@ -82,8 +80,9 @@ def def_ls():
 
 def def_cd(name):
     try:
-        if name[1]:
-            os.chdir(name[1])
+        if len(name) == 2:
+            if name[1]:
+                os.chdir(name[1])
     except OSError as error:
         print(error)
         return SHELL_ERROR
@@ -100,9 +99,10 @@ def del_dir(name):
     dir = os.getcwd()
     os.chdir(dir)
     try:
-        if name[1]:
-            os.rmdir(name[1])
-            print("Directory '%s' has been removed successfully" % name[1])
+        if len(name) == 2:
+            if name[1]:
+                os.rmdir(name[1])
+                print("Directory '%s' has been removed successfully" % name[1])
     except OSError as error:
         print(error)
         print("Directory '%s' can not be removed" % name[1])
@@ -114,9 +114,10 @@ def make_folder(name):
     dir = os.getcwd()
     os.chdir(dir)
     try:
-        if name[1]:
-            os.mkdir(name[1])
-        print("Dirrecrory '%s' successfully created" % name[1])
+        if len(name) == 2:
+            if name[1]:
+                os.mkdir(name[1])
+            print("Dirrecrory '%s' successfully created" % name[1])
     except OSError as error:
         print(error)
         print("Directory '%s' can not be removed" % name[1])
@@ -125,36 +126,32 @@ def make_folder(name):
 
 
 def execute(tokens):
-    pid = os.fork()
+    # pid = os.fork()
     st = SHELL_RUN
-    if pid == 0:
-        if tokens:
-            if (tokens[0] == "mkdir"):
-                st = make_folder(tokens)
-            if (tokens[0] == "rmdir"):
-                st = del_dir(tokens)
-            if (tokens[0] == "pwd"):
-                st = def_pwd()
-            if (tokens[0] == "cd"):
-                st = def_cd(tokens)
-            if (tokens[0] == "ls"):
-                st = def_ls()
-            if (tokens[0] == "cp"):
-                st = copy(tokens)
-            if (tokens[0] == "mv"):
-                st = move(tokens)
-            if (tokens[0] == "rm"):
-                st = delete(tokens)
+    
+    if tokens:
+        if (tokens[0] == "mkdir"):
+            st = make_folder(tokens)
+        if (tokens[0] == "rmdir"):
+            st = del_dir(tokens)
+        if (tokens[0] == "pwd"):
+            st = def_pwd()
+        if (tokens[0] == "cd"):
+            st = def_cd(tokens)
+        if (tokens[0] == "ls"):
+            st = def_ls()
+        if (tokens[0] == "cp"):
+            st = copy(tokens)
+        if (tokens[0] == "mv"):
+            st = move(tokens)
+        if (tokens[0] == "rm"):
+            st = delete(tokens)
         ############################
         # bonus
-            if (tokens[0] == "run"):
-                st = run(tokens)
-        # os.execvp(tokens[0], tokens)
-    elif pid > 0:
-        while True:
-            wait, status = os.waitpid(pid, 0)
-            if os.WIFEXITED(status) or os.WIFSIGNALED(status):
-                break
+        if (tokens[0] == "run"):
+            pid = Process ( target = run , args = ( tokens, ) ) 
+            pid.start()
+            pid.join()
     return SHELL_RUN
 
 
