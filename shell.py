@@ -11,7 +11,7 @@ SHELL_ERROR = 2
 
 def run(tokens):
     st = SHELL_RUN
-    args =""
+    args = ""
     for i in range(1, len(tokens)):
         args += tokens[i]
         args += ' '
@@ -22,23 +22,12 @@ def run(tokens):
     return SHELL_RUN
 
 
-def delete(name):
-    try:
-        if len(name) == 2:
-            if name[1]:
-                os.remove(name[1])
-    except OSError as error:
-        print(error)
-        return SHELL_ERROR
-    return SHELL_RUN
-
-
 def move(name):
     dir = os.getcwd()
     try:
         if len(name) == 3:
             if name[1] and name[2]:
-                os.replace(name[1], name[2])
+                sh.move(name[1], name[2])
         else:
             return SHELL_ERROR
     except OSError as error:
@@ -78,17 +67,6 @@ def def_ls():
     return SHELL_RUN
 
 
-def def_cd(name):
-    try:
-        if len(name) == 2:
-            if name[1]:
-                os.chdir(name[1])
-    except OSError as error:
-        print(error)
-        return SHELL_ERROR
-    return SHELL_RUN
-
-
 def def_pwd():
     dir = os.getcwd()
     print(dir)
@@ -125,10 +103,29 @@ def make_folder(name):
     return SHELL_RUN
 
 
+def delete(name):
+    try:
+        if name[1]:
+            os.remove(name[1])
+    except OSError as error:
+        print(error)
+        return SHELL_ERROR
+    return SHELL_RUN
+
+
+def def_cd(name):
+    try:
+        if name[1]:
+            os.chdir(name[1])
+    except OSError as error:
+        print(error)
+        return SHELL_ERROR
+    return SHELL_RUN
+
+
 def execute(tokens):
-    # pid = os.fork()
     st = SHELL_RUN
-    
+
     if tokens:
         if (tokens[0] == "mkdir"):
             st = make_folder(tokens)
@@ -149,7 +146,7 @@ def execute(tokens):
         ############################
         # bonus
         if (tokens[0] == "run"):
-            pid = Process ( target = run , args = ( tokens, ) ) 
+            pid = Process(target=run, args=(tokens, ))
             pid.start()
             pid.join()
     return SHELL_RUN

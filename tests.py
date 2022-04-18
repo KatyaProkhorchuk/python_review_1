@@ -41,7 +41,7 @@ class TestBash(unittest.TestCase):
         test = ['mv', 'test.txt']
         self.assertEqual(2, move(test))
         os.mkdir('testdir')
-        test = ['mv', 'test.txt', 'testdir']
+        test = ['mv', 'test.txt', 'testdir/']
         self.assertEqual(2, move(test))
         os.rmdir('testdir')
 
