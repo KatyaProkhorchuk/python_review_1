@@ -1,6 +1,6 @@
-import unittest
-import sys
 from shell import *
+import unittest
+
 
 
 class TestBash(unittest.TestCase):

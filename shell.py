@@ -1,12 +1,10 @@
-import sys
-import shlex
-import os
 from colorama import Fore
-import shutil as sh
+from Globals import *
 from multiprocessing import Process
-SHELL_RUN = 1
-SHELL_STOP = 0
-SHELL_ERROR = 2
+import os
+import shutil as sh
+import shlex
+import sys
 
 
 def run(tokens):
@@ -143,6 +141,8 @@ def execute(tokens):
             st = move(tokens)
         if (tokens[0] == "rm"):
             st = delete(tokens)
+        if (tokens[0] == "exit"):
+            return SHELL_STOP
         ############################
         # bonus
         if (tokens[0] == "run"):
@@ -166,10 +166,3 @@ def shell():
         tokens = cmd_token(command)
         status = execute(tokens)
 
-
-def main():
-    shell()
-
-
-if __name__ == "__main__":
-    main()
