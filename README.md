@@ -1,6 +1,7 @@
 # Bash <br>
 >***Клонировать репозиторий*** git clone git@github.com:KatyaProkhorchuk/python_review_1.git<br>
 cd python_review_1 <br>
+pip freeze -r requirements.txt <br>
 ***Для запуска программы*** python3 main.py<br>
 ***Для запуска тестов*** PYTHONPATH=src python -m pytest --cov=shell --cov-report=html tests.py
 # 

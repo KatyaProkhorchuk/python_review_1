@@ -1,5 +1,5 @@
 from colorama import Fore
-from Globals import *
+from Globals import SHELL_RUN,SHELL_ERROR,SHELL_STOP
 from multiprocessing import Process
 import os
 import shutil as sh
