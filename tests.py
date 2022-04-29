@@ -1,5 +1,6 @@
 import os
 import shell
+import sys
 import unittest
 
 
@@ -37,6 +38,7 @@ class TestBash(unittest.TestCase):
         os.remove('test1.txt')
         test = ['cp', 'test.txt']
         self.assertEqual(2, shell.copy(test))
+        
 
     def test_move(self):
         test = ['mv', 'test.txt']
@@ -56,3 +58,39 @@ class TestBash(unittest.TestCase):
         self.assertEqual(2, shell.delete(test))
         test = ['rm', 'file.txt']
         self.assertEqual(1, shell.delete(test))
+    def test_cmd_token(self):
+        test =['mkdir','test']
+        str = "mkdir test"
+        self.assertEqual(test, shell.cmd_token(str))
+    def test_execute(self):
+        test = ['run','ls']
+        self.assertEqual(1, shell.execute(test))
+        test = ['run','lkjhg','kjhgf']
+        self.assertEqual(1, shell.execute(test))
+        test = ['ls']
+        self.assertEqual(1, shell.execute(test))
+        test = ['mkdir','test']
+        self.assertEqual(1, shell.execute(test))
+        test = ['cd','test']
+        self.assertEqual(1, shell.execute(test))
+        test = ['run','ls']
+        self.assertEqual(1, shell.execute(test))
+        test = ['cp','README.md','test']
+        self.assertEqual(1, shell.execute(test))
+        test = ['rm','test/README.md']
+        self.assertEqual(1, shell.execute(test))
+        test = ['mv','README.md','test/']
+        self.assertEqual(1, shell.execute(test))
+        test = ['rmdir','test']
+        self.assertEqual(1, shell.execute(test))
+        test = ['pwd']
+        self.assertEqual(1, shell.execute(test))
+        
+        self.assertEqual(1, shell.execute(test))
+        test = ['exit']
+        self.assertEqual(0, shell.execute(test))
+    def test_run(self):
+        test = ['run','mv','README.md','test/']
+        self.assertEqual(1, shell.run(test))
+
+
